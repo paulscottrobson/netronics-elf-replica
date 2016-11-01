@@ -1,0 +1,78 @@
+ AS V1.42 Beta [Bld 114] - source file count.asm - page 1 - 1/11/2016 16:46:16
+
+
+       1/       0 :                     
+       2/       0 :                     	cpu 	1802
+       3/       0 :                     	
+       4/       0 : =0H                 r0 = 0
+       5/       0 : =1H                 r1 = 1
+       6/       0 : =2H                 r2 = 2
+       7/       0 : =3H                 r3 = 3
+       8/       0 : =4H                 r4 = 4
+       9/       0 : =5H                 r5 = 5
+      10/       0 :                     
+      11/       0 : 71                  	dis
+      12/       1 :                     Delay:
+      13/       1 : F8 01               	ldi 	1
+      14/       3 : B4                  	phi 	r4
+      15/       4 :                     DLoop:
+      16/       4 : 24                  	dec 	r4
+      17/       5 : 94                  	ghi 	r4
+      18/       6 : 3A 04               	bnz 	DLoop
+      19/       8 : 84                  	glo 	r4
+      20/       9 : 3A 04               	bnz 	DLoop
+      21/       B :                     
+      22/       B : F8 20               	ldi 	020h
+      23/       D : A3                  	plo 	r3
+      24/       E : 12                  	inc 	r2
+      25/       F : 82                  	glo 	r2
+      26/      10 : 53                  	str 	r3
+      27/      11 : E3                  	sex 	r3
+      28/      12 : 64                  	out 	4
+      29/      13 : 30 01               	br 		Delay
+      30/      15 :                     
+      31/      15 :                     
+ AS V1.42 Beta [Bld 114] - source file count.asm - page 2 - 1/11/2016 16:46:16
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :                                        x86_64-unknown-linux - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   1/11/2016 - |  DELAY :                          1 C |
+ DLOOP :                          4 C | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+*LISTON :                         1 - | *MACEXP :                         1 - |
+*MOMCPU :                      1802 - | *MOMCPUNAME :                  1802 - |
+*NESTMAX :                      100 - | *PACKING :                        0 - |
+*PADDING :                        1 - | *R0 :                             0 - |
+*R1 :                             1 - |  R2 :                             2 - |
+ R3 :                             3 - |  R4 :                             4 - |
+*R5 :                             5 - | *RELAXED :                        0 - |
+*TIME :                    16:46:16 - | *TRUE :                           1 - |
+*VERSION :                     142F - |
+
+     36 symbols
+     31 unused symbols
+
+ AS V1.42 Beta [Bld 114] - source file count.asm - page 3 - 1/11/2016 16:46:16
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+     31 lines source file
+      1 pass
+      0 errors
+      0 warnings

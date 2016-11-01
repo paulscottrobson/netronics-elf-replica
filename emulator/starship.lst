@@ -1,0 +1,183 @@
+ AS V1.42 Beta [Bld 114] - source file starship.asm - page 1 - 1/11/2016 16:49:02
+
+
+       1/       0 :                     
+       2/       0 :                     	cpu 	1802
+       3/       0 :                     	
+       4/       0 : =0H                 r0 = 0
+       5/       0 : =1H                 r1 = 1
+       6/       0 : =2H                 r2 = 2
+       7/       0 : =3H                 r3 = 3
+       8/       0 : =4H                 r4 = 4
+       9/       0 : =5H                 r5 = 5
+      10/       0 :                     
+      11/       0 : 90                  	ghi 	r0
+      12/       1 : B1                  	phi		r1
+      13/       2 : B2                  	phi		r2
+      14/       3 :                     
+      15/       3 : A3                  	plo		r3
+      16/       4 : A4                  	plo 	r4
+      17/       5 :                     
+      18/       5 : F8 2D               	ldi 	Main & 255
+      19/       7 : A3                  	plo 	r3
+      20/       8 : F8 4E               	ldi 	Stack & 255
+      21/       A : A2                  	plo 	r2
+      22/       B : F8 11               	ldi 	Interrupt & 255
+      23/       D : A1                  	plo 	r1
+      24/       E : D3                  	sep 	r3
+      25/       F :                     
+      26/       F :                     Return:
+      27/       F : 72                  	ldxa
+      28/      10 : 70                  	ret
+      29/      11 :                     Interrupt:
+      30/      11 : 22                  	dec 	r2
+      31/      12 : 78                  	sav
+      32/      13 : 22                  	dec 	r2
+      33/      14 : 52                  	str 	r2
+      34/      15 : C4                  	nop
+      35/      16 : C4                  	nop
+      36/      17 : C4                  	nop
+      37/      18 : F8 00               	ldi 	0
+      38/      1A : B0                  	phi 	r0
+      39/      1B : F8 00               	ldi 	0
+      40/      1D : A0                  	plo 	r0
+      41/      1E :                     Refresh:
+      42/      1E : 80                  	glo 	r0
+      43/      1F : E2                  	sex 	r2
+      44/      20 :                     
+      45/      20 : E2                  	sex 	r2
+      46/      21 : 20                  	dec 	r0
+      47/      22 : A0                  	plo 	r0
+      48/      23 :                     
+      49/      23 : E2                  	sex 	r2
+      50/      24 : 20                  	dec 	r0
+      51/      25 : A0                  	plo 	r0
+      52/      26 :                     
+      53/      26 : E2                  	sex 	r2
+      54/      27 : 20                  	dec 	r0
+      55/      28 : A0                  	plo 	r0
+      56/      29 :                     
+      57/      29 : 3C 1E               	bn1 	Refresh
+      58/      2B : 30 0F               	br 		Return
+      59/      2D :                     
+      60/      2D :                     Main:
+ AS V1.42 Beta [Bld 114] - source file starship.asm - page 2 - 1/11/2016 16:49:02
+
+
+      61/      2D : E2                  	sex 	r2
+      62/      2E : 69                  	inp		1
+      63/      2F :                     Wait:
+      64/      2F : F8 FC               	ldi 	0FCh
+      65/      31 : A5                  	plo 	r5
+      66/      32 : E5                  	sex 	r5
+      67/      33 : F8 81               	ldi 	081h
+      68/      35 : 3F 39               	bn4		NoKey
+      69/      37 : F8 FF               	ldi 	0FFh
+      70/      39 :                     NoKey:
+      71/      39 : 55                  	str 	r5
+      72/      3A : 15                  	inc 	r5
+      73/      3B : 15                  	inc 	r5
+      74/      3C : 6C                  	inp 	4
+      75/      3D : 64                  	out 	4
+      76/      3E : 30 2F               	br 		Wait
+      77/      40 :                     
+      78/      40 : =4EH                Stack = 04Eh	
+      79/      40 :                     
+      80/      50 :                     	org 	50h
+      81/      50 :                     ;	db 000h,000h,000h,000h,000h,000h,000h,000h
+      82/      50 :                     ;	db 000h,000h,000h,000h,000h,000h,000h,000h
+      83/      50 : 7B DE DB DE 00 00   	db 07Bh,0DEh,0DBh,0DEh,000h,000h,000h,000h
+                    00 00 
+      84/      58 : 4A 50 DA 52 00 00   	db 04Ah,050h,0DAh,052h,000h,000h,000h,000h
+                    00 00 
+      85/      60 : 42 5E AB D0 00 00   	db 042h,05Eh,0ABh,0D0h,000h,000h,000h,000h
+                    00 00 
+      86/      68 : 4A 42 8A 52 00 00   	db 04Ah,042h,08Ah,052h,000h,000h,000h,000h
+                    00 00 
+      87/      70 : 7B DE 8A 5E 00 00   	db 07Bh,0DEh,08Ah,05Eh,000h,000h,000h,000h
+                    00 00 
+      88/      78 : 00 00 00 00 00 00   	db 000h,000h,000h,000h,000h,000h,000h,000h
+                    00 00 
+      89/      80 : 00 00 00 00 00 00   	db 000h,000h,000h,000h,000h,000h,007h,0E0h
+                    07 E0 
+      90/      88 : 00 00 00 00 FF FF   	db 000h,000h,000h,000h,0FFh,0FFh,0FFh,0FFh
+                    FF FF 
+      91/      90 : 00 06 00 01 00 00   	db 000h,006h,000h,001h,000h,000h,000h,001h
+                    00 01 
+      92/      98 : 00 7F E0 01 00 00   	db 000h,07Fh,0E0h,001h,000h,000h,000h,002h
+                    00 02 
+      93/      A0 : 7F C0 3F E0 FC FF   	db 07Fh,0C0h,03Fh,0E0h,0FCh,0FFh,0FFh,0FEh
+                    FF FE 
+      94/      A8 : 40 0F 00 10 04 80   	db 040h,00Fh,000h,010h,004h,080h,000h,000h
+                    00 00 
+      95/      B0 : 7F C0 3F E0 04 80   	db 07Fh,0C0h,03Fh,0E0h,004h,080h,000h,000h
+                    00 00 
+      96/      B8 : 00 3F D0 40 04 80   	db 000h,03Fh,0D0h,040h,004h,080h,000h,000h
+                    00 00 
+      97/      C0 : 00 0F 08 20 04 80   	db 000h,00Fh,008h,020h,004h,080h,07Ah,01Eh
+                    7A 1E 
+      98/      C8 : 00 00 07 90 04 80   	db 000h,000h,007h,090h,004h,080h,042h,010h
+                    42 10 
+      99/      D0 : 00 00 18 7F FC F0   	db 000h,000h,018h,07Fh,0FCh,0F0h,072h,01Ch
+                    72 1C 
+     100/      D8 : 00 00 30 00 00 10   	db 000h,000h,030h,000h,000h,010h,042h,010h
+                    42 10 
+     101/      E0 : 00 00 73 FC 00 10   	db 000h,000h,073h,0FCh,000h,010h,07Bh,0D0h
+                    7B D0 
+ AS V1.42 Beta [Bld 114] - source file starship.asm - page 3 - 1/11/2016 16:49:02
+
+
+     102/      E8 : 00 00 30 00 3F F0   	db 000h,000h,030h,000h,03Fh,0F0h,000h,000h
+                    00 00 
+     103/      F0 : 00 00 18 0F C0 00   	db 000h,000h,018h,00Fh,0C0h,000h,000h,000h
+                    00 00 
+     104/      F8 : 00 00 07 F0 00 00   	db 000h,000h,007h,0F0h,000h,000h,000h,000h
+                    00 00 
+     105/     100 :                     
+     106/     100 :                     
+ AS V1.42 Beta [Bld 114] - source file starship.asm - page 4 - 1/11/2016 16:49:02
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :                                        x86_64-unknown-linux - |
+*BIGENDIAN :                      0 - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - | *CONSTPI :        3.141592653589793 - |
+*DATE :                   1/11/2016 - | *FALSE :                          0 - |
+*FULLPMMU :                       1 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+*INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
+*INSRCMODE :                      0 - | *INSUPMODE :                      0 - |
+ INTERRUPT :                     11 C | *LISTON :                         1 - |
+*MACEXP :                         1 - |  MAIN :                          2D C |
+*MOMCPU :                      1802 - | *MOMCPUNAME :                  1802 - |
+*NESTMAX :                      100 - |  NOKEY :                         39 C |
+*PACKING :                        0 - | *PADDING :                        1 - |
+ R0 :                             0 - |  R1 :                             1 - |
+ R2 :                             2 - |  R3 :                             3 - |
+ R4 :                             4 - |  R5 :                             5 - |
+ REFRESH :                       1E C | *RELAXED :                        0 - |
+ RETURN :                         F C |  STACK :                         4E - |
+*TIME :                    16:49:02 - | *TRUE :                           1 - |
+*VERSION :                     142F - |  WAIT :                          2F C |
+
+     41 symbols
+     28 unused symbols
+
+ AS V1.42 Beta [Bld 114] - source file starship.asm - page 5 - 1/11/2016 16:49:02
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.00 seconds assembly time
+
+    106 lines source file
+      2 passes
+      0 errors
+      0 warnings

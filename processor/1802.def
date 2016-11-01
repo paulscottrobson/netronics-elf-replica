@@ -23,15 +23,15 @@
 :static WORD16	R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,R11,R12,R13,R14,R15,Cycles,temp16,MA;
 //
 //	Pointers to current R(P) and current R(X), these point to R0, R2 whatever throughout.
-//	must be maintained by anything that changes P or X (SEP SEX MARK RET DIS, CPU Reset).
+//	must be maintained by anything that changes P or X (SEP SEX MARK RET DIS, CPU Reset,CPU Interrupt).
 //
 :static WORD16 *pX,*pP;
 //
 //	Reset the 1802 CPU.
 //
-:static _1802Reset(void) {
+:static void __1802Reset(void) {
 :	Q = 0;IE = 1;X = 0;P = 0;R0 = 0;											// Register values
-:	*pX = *pP = &R0;															// Initialise XP pointers
+:	pX = pP = &R0;																// Initialise XP pointers
 :	DF &= 1;																	// Make DF 1 bit.
 :	OUTPORT0(0);																// Notify Q change.
 :}
@@ -129,13 +129,13 @@ FF 		"SMI $1"		FETCH();SUB(D,MB,1)
 
 :#define LBRANCH() 		{ *pP = temp16; }										// Execute Long Branch
 
-C0 		"LBR $1"		FETCH2();LBRANCH();										// LBranch
-C1 		"LBQ $1"		FETCH2();if (Q != 0) LBRANCH()							// LBranch if Q
-C2 		"LBZ $1"		FETCH2();if (D == 0) LBRANCH()							// LBranch if zero
-C3 		"LBDF $1"		FETCH2();if (DF != 0) LBRANCH()							// LBranch if DF
-C9 		"LBNQ $1"		FETCH2();if (Q == 0) LBRANCH()							// LBranch if Q clear
-CA 		"LBNZ $1"		FETCH2();if (D != 0) LBRANCH()							// LBranch if non zero
-CB 		"LBNF $1"		FETCH2();if (DF == 0) LBRANCH()							// LBranch if DF clear
+C0 		"LBR $2"		FETCH2();LBRANCH();										// LBranch
+C1 		"LBQ $2"		FETCH2();if (Q != 0) LBRANCH()							// LBranch if Q
+C2 		"LBZ $2"		FETCH2();if (D == 0) LBRANCH()							// LBranch if zero
+C3 		"LBDF $2"		FETCH2();if (DF != 0) LBRANCH()							// LBranch if DF
+C9 		"LBNQ $2"		FETCH2();if (Q == 0) LBRANCH()							// LBranch if Q clear
+CA 		"LBNZ $2"		FETCH2();if (D != 0) LBRANCH()							// LBranch if non zero
+CB 		"LBNF $2"		FETCH2();if (DF == 0) LBRANCH()							// LBranch if DF clear
 
 // *************************************************************************************************
 //									Skip instructions (Long)
@@ -158,8 +158,9 @@ CC 		"LSIE"			Cycles++;if (IE != 0) LSKIP()							// LSkip if IE set
 
 00 		"IDL"			; 														// IDL not implemented
 C4 		"NOP"			Cycles++ 												// No Operation.
-D0-DF 	"SEP R@X"		P = @R;pP = &@R 										// Set P (and ptr)
-E0-EF 	"SEX R@X"		X = @R;pX = &@R 										// Set X (and ptr)
+68 		"DB 68"			; 														// $68 does nothing.
+D0-DF 	"SEP R@X"		P = @R;pP = &R@R 										// Set P (and ptr)
+E0-EF 	"SEX R@X"		X = @R;pX = &R@R 										// Set X (and ptr)
 7B 		"SEQ"			Q = 1;OUTPORT0(1) 										// Set Q
 7A 		"REQ"			Q = 0;OUTPORT0(0) 	 									// Reset Q
 78 		"SAV"			MA = *pX;MB = T;WRITE();								// Save T to M(R(X))
@@ -195,3 +196,15 @@ E0-EF 	"SEX R@X"		X = @R;pX = &@R 										// Set X (and ptr)
 
 //	Note Q is port 0.
 
+// *************************************************************************************************
+//									1802 Interrupt Function
+// *************************************************************************************************
+
+:static void __1802Interrupt(void) {
+:	if (IE != 0) {																// If enabled
+:		T = (X << 4) | P;														// P and X in T
+:		P = 1;X = 2;															// P = 1,X = 2
+:		pP = &R1;pX = &R2;														// Synchronise pointers
+:		IE = 0;																	// Disable further ints
+:	}	
+:}
