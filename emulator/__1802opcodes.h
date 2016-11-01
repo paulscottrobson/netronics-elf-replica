@@ -783,23 +783,23 @@ case 0xc3: /***** lbdf $2 *****/
     break;
 
 case 0xc4: /***** nop *****/
-    Cycles++;
+    Cycles--;
     break;
 
 case 0xc5: /***** lsnq *****/
-    Cycles++;if (Q == 0) LSKIP();
+    Cycles--;if (Q == 0) LSKIP();
     break;
 
 case 0xc6: /***** lsnz *****/
-    Cycles++;if (D != 0) LSKIP();
+    Cycles--;if (D != 0) LSKIP();
     break;
 
 case 0xc7: /***** lsnf *****/
-    Cycles++;if (DF == 0) LSKIP();
+    Cycles--;if (DF == 0) LSKIP();
     break;
 
 case 0xc8: /***** lskp *****/
-    Cycles++;LSKIP();;
+    Cycles--;LSKIP();;
     break;
 
 case 0xc9: /***** lbnq $2 *****/
@@ -815,19 +815,19 @@ case 0xcb: /***** lbnf $2 *****/
     break;
 
 case 0xcc: /***** lsie *****/
-    Cycles++;if (IE != 0) LSKIP();
+    Cycles--;if (IE != 0) LSKIP();
     break;
 
 case 0xcd: /***** lsq *****/
-    Cycles++;if (Q != 0) LSKIP();
+    Cycles--;if (Q != 0) LSKIP();
     break;
 
 case 0xce: /***** lsz *****/
-    Cycles++;if (D == 0) LSKIP();
+    Cycles--;if (D == 0) LSKIP();
     break;
 
 case 0xcf: /***** lsdf *****/
-    Cycles++;if (DF != 0) LSKIP();
+    Cycles--;if (DF != 0) LSKIP();
     break;
 
 case 0xd0: /***** sep r0 *****/

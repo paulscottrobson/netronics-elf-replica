@@ -3,7 +3,7 @@
 //
 //		Name:		sys_debug_elf.c
 //		Purpose:	Debugger Code (System Dependent)
-//		Created:	19th October 2015
+//		Created:	1st November 2016
 //		Author:		Paul Robson (paul@robsons->org.uk)
 //
 // *******************************************************************************************************************************
@@ -18,7 +18,7 @@
 #include "debugger.h"
 #include "hardware.h"
 
-static const char*_mnemonics[256] = {
+static const char*_mnemonics[256] = {												// Mnenonics array.
 #include "__1802mnemonics.h"
 };
 
@@ -32,7 +32,7 @@ static const char*_mnemonics[256] = {
 
 static const char *labels[] = { "D","DF","P","X","T","Q","IE","RP","RX","CY","BP", NULL };
 
-void DBGXRender(int *address) {
+void DBGXRender(int *address,int showDisplay) {
 	int n = 0;
 	char buffer[32];
 	CPUSTATUS *s = CPUGetStatus();
@@ -86,23 +86,27 @@ void DBGXRender(int *address) {
 		GFXString(GRID(5,row),buffer,GRIDSIZE,isPC ? DBGC_HIGHLIGHT:DBGC_DATA,-1);	// Print the mnemonic
 	}
 
-	GFXNumber(GRID(23,7),HWIGetDigitDisplay(),16,2,GRIDSIZE*4,0xF00,0x000);
+	int y = showDisplay ? 1 : 7;
+	GFXNumber(GRID(23,y),HWIGetDigitDisplay(),16,2,GRIDSIZE*4,0xF00,0x000);
 
-	p = HWIGetPageAddress();														// wherever the screen is, it's now in R0.
-	SDL_Rect rc;rc.x = _GFXX(21);rc.y = _GFXY(1)/2;									// Whole rectangle.
-	rc.w = 12 * GRIDSIZE * 6;rc.h = 6 *GRIDSIZE * 8; 										
-	rc.w = rc.w/64*64;rc.h = rc.h/32*32;											// Make it /64 /32
-	SDL_Rect rcPixel;rcPixel.h = rc.h/32;rcPixel.w = rc.w / 64;						// Pixel rectangle.
-	GFXRectangle(&rc,0x0);															// Fill it black
-	if (p != 0xFFFF && HWIGetScreenOn() != 0) {
-		for (int i = 0;i < 256;i++) {
-			int bt = CPUReadMemory(p+i);
-			rcPixel.x = rc.x + rcPixel.w * 8 * (i % 8);								// Horizontal position
-			rcPixel.y = rc.y + i / 8 * rcPixel.h;
-			for (int b = 0;b < 8;b++) {
-				if (bt & (0x80 >> b)) GFXRectangle(&rcPixel,0xFFF);
-				rcPixel.x += rcPixel.w;
-			}			
+	if (showDisplay) {
+		p = HWIGetPageAddress();														// wherever the screen is, it's now in R0.
+		SDL_Rect rc;rc.x = _GFXX(0);rc.y = _GFXY(14)/2;									// Whole rectangle.
+		int vLines = 32;
+		rc.w = 32 * GRIDSIZE * 6;rc.h = 16 *GRIDSIZE * 8; 										
+		rc.w = rc.w/64*64;rc.h = rc.h/vLines*vLines;									// Make it /64 /32 (etc)
+		SDL_Rect rcPixel;rcPixel.h = rc.h/vLines;rcPixel.w = rc.w / 64;					// Pixel rectangle.
+		GFXRectangle(&rc,0x0);															// Fill it black
+		if (p != 0xFFFF && HWIGetScreenOn() != 0) {										// If actually valid.
+			for (int i = 0;i < 32*vLines;i++) {
+				int bt = CPUReadMemory(p+i);
+				rcPixel.x = rc.x + rcPixel.w * 8 * (i % 8);								// Horizontal position
+				rcPixel.y = rc.y + i / 8 * rcPixel.h;
+				for (int b = 0;b < 8;b++) {
+					if (bt & (0x80 >> b)) GFXRectangle(&rcPixel,0xF80);
+					rcPixel.x += rcPixel.w;
+				}			
+			}
 		}
 	}
 }	

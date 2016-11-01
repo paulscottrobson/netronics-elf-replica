@@ -1,9 +1,9 @@
 // *******************************************************************************************************************************
 // *******************************************************************************************************************************
 //
-//		Name:		processor.c
+//		Name:		sys_processor.c
 //		Purpose:	Processor Emulation.
-//		Created:	19th October 2015
+//		Created:	1st November 2016
 //		Author:		Paul Robson (paul@robsons.org.uk)
 //
 // *******************************************************************************************************************************
@@ -25,16 +25,18 @@
 #define CYCLE_RATE 		(CRYSTAL_CLOCK/8)											// Cycles per second (8 clocks per cycle)
 #define FRAME_RATE		(60)														// Frames per second (60)
 #define CYCLES_PER_FRAME (CYCLE_RATE / FRAME_RATE)									// Cycles per frame (3,728)
+#define SCAN_LINES 		(262) 														// Scan lines per frame (262)
+#define CYCLES_PER_LINE  (CYCLES_PER_FRAME / SCAN_LINES)							// Cycles per scan line (14)
 
-//	3,668 Cycles per frame
-// 	262 lines per video frame
-//	14 cycles per scanline (should be :))
+//	Now, if the screen is on in 64x32 mode, 4 scan lines per pixel, then for 128 of these lines the CPU will 
+//	be generating video, leaving only 134 for the CPU. We adjust CYCLES_PER_LINE dynamically to cope with this.
 
 // *******************************************************************************************************************************
 //														CPU / Memory
 // *******************************************************************************************************************************
 
-static BYTE8 ramMemory[MEMORYSIZE];													
+static BYTE8 ramMemory[MEMORYSIZE];													// R/W Memory
+static WORD16 displayLines; 														// Scanlines displayed.
 
 // *******************************************************************************************************************************
 //													   Port Interfaces
@@ -75,8 +77,10 @@ static inline void _Write(void) {
 // *******************************************************************************************************************************
 
 void CPUReset(void) {
-	HWIReset();
-	__1802Reset();
+	HWIReset();																		// Reset hardware
+	__1802Reset();																	// Reset CPU
+	Cycles = 2000;																	// So no immediate Interrupt
+	displayLines = 128; 															// Number of display lines CPU gen.
 }
 
 // *******************************************************************************************************************************
@@ -90,20 +94,26 @@ BYTE8 CPUExecuteInstruction(void) {
 	switch(MB) {																	// Execute it.
 		#include "__1802opcodes.h"
 	}
-	Cycles += 2;																	// Instruction is two cycles
-	if (Cycles >= CYCLES_PER_FRAME-29) {											// If we are at INT time.
-		if (IE != 0) {																// and interrupts are enabled
+	Cycles -= 2;																	// Instruction is two cycles
+	if (Cycles < 29) {																// If we are at INT time
+		if (IE != 0) {																// and interrupts are enabled and display on.
 			__1802Interrupt();														// Fire an interrupt
-			Cycles = CYCLES_PER_FRAME - 29;											// Make it EXACTLY 29 cycles to display start
-																					// When breaks on FRAME_RATE then will be at render
+			Cycles = 29;															// Make it EXACTLY 29 cycles to display start																					// When breaks on FRAME_RATE then will be at render
+			Cycles--;																// Actual test is going -ve.			
+			displayLines = 128; 													// Scan lines used for video out.
+		}
+		else { 																		// Display is off.
+			displayLines = 0;														// we can run full speed.
 		}
 	}	
-	if (Cycles < CYCLES_PER_FRAME) return 0;										// Not completed a frame.
+	if ((Cycles & 0x8000) == 0) return 0;											// Not completed a frame.
+																					// (Cycles is unsigned 16 bit int)
 	BYTE8 *ptr = NULL;																// NULL if R0 is a bad pointer.							
 	if (R0 <= MEMORYSIZE-256) ptr = ramMemory+R0;									// If in memory range, get pointer
 	HWISetPageAddress(R0,ptr);														// Set the display address.
 	HWIEndFrame();																	// End of Frame code
-	Cycles = Cycles - CYCLES_PER_FRAME;												// Adjust this frame rate.
+	Cycles = Cycles + CYCLES_PER_FRAME;												// Adjust this frame rate.
+	Cycles = Cycles - displayLines * CYCLES_PER_LINE; 								// Reduce for the number of display lines
 	return FRAME_RATE;																// Return frame rate.
 }
 

@@ -3,7 +3,7 @@
 //
 //		Name:		hardware.h
 //		Purpose:	Hardware Interface (header)
-//		Created:	19th October 2015
+//		Created:	1st November 2016
 //		Author:		Paul Robson (paul@robsons.org.uk)
 //
 // *******************************************************************************************************************************

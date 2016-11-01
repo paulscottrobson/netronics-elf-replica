@@ -11,7 +11,7 @@ static void __1802Reset(void) {
 #define ADD(c) temp16 = D + MB + (c);D = temp16;DF = (temp16 >> 8) & 1
 #define SUB(a,b,c) temp16 = (a) + ((b)^0xFF) + (c);D = temp16;DF = (temp16 >> 8) & 1
 #define SBRANCH()   { *pP = ((*pP) & 0xFF00) | MB; }
-#define FETCH2()  { FETCH();temp16 = (MB << 8);FETCH();temp16 |= MB; Cycles++; }
+#define FETCH2()  { FETCH();temp16 = (MB << 8);FETCH();temp16 |= MB; Cycles--; }
 #define LBRANCH()   { *pP = temp16; }
 #define LSKIP()   { *pP = (*pP) + 2; }
 static void inline __Mark(void) {

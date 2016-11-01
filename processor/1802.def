@@ -125,7 +125,7 @@ FF 		"SMI $1"		FETCH();SUB(D,MB,1)
 // *************************************************************************************************
 
 																				// Fetch 16 bit address
-:#define FETCH2()		{ FETCH();temp16 = (MB << 8);FETCH();temp16 |= MB; Cycles++; }
+:#define FETCH2()		{ FETCH();temp16 = (MB << 8);FETCH();temp16 |= MB; Cycles--; }
 
 :#define LBRANCH() 		{ *pP = temp16; }										// Execute Long Branch
 
@@ -143,21 +143,21 @@ CB 		"LBNF $2"		FETCH2();if (DF == 0) LBRANCH()							// LBranch if DF clear
 
 :#define LSKIP() 		{ *pP = (*pP) + 2; }									// Execute long skip
 
-C8 		"LSKP"			Cycles++;LSKIP();										// LSkip
-CD 		"LSQ"			Cycles++;if (Q != 0) LSKIP()							// LSkip if Q
-CE 		"LSZ"			Cycles++;if (D == 0) LSKIP()							// LSkip if zero
-CF 		"LSDF"			Cycles++;if (DF != 0) LSKIP()							// LSkip if DF
-C5 		"LSNQ"			Cycles++;if (Q == 0) LSKIP()							// LSkip if Q clear
-C6 		"LSNZ"			Cycles++;if (D != 0) LSKIP()							// LSkip if non zero
-C7 		"LSNF"			Cycles++;if (DF == 0) LSKIP()							// LSkip if DF clear
-CC 		"LSIE"			Cycles++;if (IE != 0) LSKIP()							// LSkip if IE set
+C8 		"LSKP"			Cycles--;LSKIP();										// LSkip
+CD 		"LSQ"			Cycles--;if (Q != 0) LSKIP()							// LSkip if Q
+CE 		"LSZ"			Cycles--;if (D == 0) LSKIP()							// LSkip if zero
+CF 		"LSDF"			Cycles--;if (DF != 0) LSKIP()							// LSkip if DF
+C5 		"LSNQ"			Cycles--;if (Q == 0) LSKIP()							// LSkip if Q clear
+C6 		"LSNZ"			Cycles--;if (D != 0) LSKIP()							// LSkip if non zero
+C7 		"LSNF"			Cycles--;if (DF == 0) LSKIP()							// LSkip if DF clear
+CC 		"LSIE"			Cycles--;if (IE != 0) LSKIP()							// LSkip if IE set
 
 // *************************************************************************************************
 //									Control Instructions
 // *************************************************************************************************
 
 00 		"IDL"			; 														// IDL not implemented
-C4 		"NOP"			Cycles++ 												// No Operation.
+C4 		"NOP"			Cycles-- 												// No Operation.
 68 		"DB 68"			; 														// $68 does nothing.
 D0-DF 	"SEP R@X"		P = @R;pP = &R@R 										// Set P (and ptr)
 E0-EF 	"SEX R@X"		X = @R;pX = &R@R 										// Set X (and ptr)
